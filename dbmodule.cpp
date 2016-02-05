@@ -94,6 +94,24 @@ char const *haskelltype(char const *type) {
     return "unknown";
 }
 
+char const *identifiers[] = {
+    "id",
+    "data",
+    "type",
+    "for",
+    "map",
+    "undefined"
+};
+
+bool is_reserved(char const *t) {
+    for (size_t i = 0; i != sizeof(identifiers)/sizeof(identifiers[0]); ++i) {
+        if (!strcmp(t, identifiers[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void chopext(char *tblname) {
     char *s = strrchr(tblname, '.');
     if (s) {
@@ -208,6 +226,10 @@ usage:
             }
             strncpy(colnames[ncols], rline, colon-rline);
             colnames[ncols][colon-rline] = 0;
+            if (is_reserved(colnames[ncols])) {
+                fprintf(stderr, "Column name is a reserved identifier: %s\n", colnames[ncols]);
+                return 1;
+            }
             strcpy(coltypes[ncols], colon+1);
             if (!checktype(coltypes[ncols])) {
                 fprintf(stderr, "unknown type %s for column %s: %s\n", coltypes[ncols], colnames[ncols], rline);
