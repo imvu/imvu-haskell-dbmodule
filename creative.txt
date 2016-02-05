@@ -1,0 +1,11 @@
+[dirs]
+sql=schemas
+hs=Imvu/Db
+
+[props]
+creative_id=uint
+name=string
+type=string
+mogile_url=string
+mogile_url_link=string
+payload=text

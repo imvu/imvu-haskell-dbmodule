@@ -1,0 +1,13 @@
+[dirs]
+sql=schemas
+hs=Imvu/Db
+
+[props]
+campaign_offer_id=uint
+campaign_id=uint
+offer_id=uint
+weight=uint
+
+[indices]
+creative=campaign_id
+offer=offer_id
