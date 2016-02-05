@@ -358,7 +358,6 @@ usage:
         fprintf(ofile, "import Data.Text (Text)\n");
     }
     fprintf(ofile, "import Data.Aeson(FromJSON (..), ToJSON (..), object, withObject, (.:), (.=))\n");
-    fprintf(ofile, "import Imvu.World (World)\n");
     fprintf(ofile, "import qualified Imvu.World.Database as D\n");
     fprintf(ofile, "import Data.Word (Word64)\n");
     fprintf(ofile, "import qualified Data.Map.Lazy as Map\n");
@@ -392,13 +391,13 @@ usage:
     }
     fprintf(ofile, "        return $ %s {..}\n\n", ucname);
 
-    fprintf(ofile, "list%ss :: World m => m [%s]\n", ucname, idtype);
+    fprintf(ofile, "list%ss :: D.SupportsDatabase m => m [%s]\n", ucname, idtype);
     fprintf(ofile, "list%ss = do\n", ucname);
     fprintf(ofile, "    ms <- D.getMasterReadShard\n");
     fprintf(ofile, "    rows :: [D.Only %s] <- D.select ms \"%s\" [] [\"%s\"] D.NoFilter [] D.NoLimit\n", idtype, tblname, colnames[0]);
     fprintf(ofile, "    return $ map D.fromOnly rows\n\n");
 
-    fprintf(ofile, "get%s :: World m => %s -> m (Maybe %s)\n", ucname, idtype, ucname);
+    fprintf(ofile, "get%s :: D.SupportsDatabase m => %s -> m (Maybe %s)\n", ucname, idtype, ucname);
     fprintf(ofile, "get%s pk = do\n", ucname);
     fprintf(ofile, "    ms <- D.getMasterReadShard\n");
     fprintf(ofile, "    row <- D.get ms pk \"%s\" \"%s\"\n", colnames[0], tblname);
@@ -414,7 +413,7 @@ usage:
     }
     fprintf(ofile, "         ) -> return $ Just $ %s {..}\n\n", ucname);
 
-    fprintf(ofile, "update%s :: World m => %s -> %s -> m Bool\n", ucname, idtype, ucname);
+    fprintf(ofile, "update%s :: D.SupportsDatabase m => %s -> %s -> m Bool\n", ucname, idtype, ucname);
     fprintf(ofile, "update%s pk (%s {..}) = do\n", ucname, ucname);
     fprintf(ofile, "    ms <- D.getMasterWriteShard\n");
     fprintf(ofile, "    let upd = D.UpdateRecord D.InsertReplace $ Map.fromList\n");
@@ -425,7 +424,7 @@ usage:
     fprintf(ofile, "            ]\n");
     fprintf(ofile, "    D.updateWhere ms \"%s\" upd (D.Equal \"%s\" (D.UpdateValue pk))\n\n", tblname, colnames[0]);
 
-    fprintf(ofile, "new%s :: World m => %s -> m (Maybe %s)\n", ucname, ucname, idtype);
+    fprintf(ofile, "new%s :: D.SupportsDatabase m => %s -> m (Maybe %s)\n", ucname, ucname, idtype);
     fprintf(ofile, "new%s (%s {..}) = do\n", ucname, ucname);
     fprintf(ofile, "    ms <- D.getMasterWriteShard\n");
     fprintf(ofile, "    let upd = D.UpdateRecord D.InsertReplace $ Map.fromList\n");
@@ -438,7 +437,7 @@ usage:
     fprintf(ofile, "        Left _ -> return $ Nothing\n");
     fprintf(ofile, "        Right r -> return $ Just $ fromIntegral $ toInteger r\n\n");
 
-    fprintf(ofile, "delete%s :: World m => %s -> m Bool\n", ucname, idtype);
+    fprintf(ofile, "delete%s :: D.SupportsDatabase m => %s -> m Bool\n", ucname, idtype);
     fprintf(ofile, "delete%s pk = do\n", ucname);
     fprintf(ofile, "    ms <- D.getMasterWriteShard\n");
     fprintf(ofile, "    res <- D.delete ms \"%s\" (D.Equal \"%s\" $ D.UpdateValue pk)\n", tblname, colnames[0]);
@@ -448,7 +447,7 @@ usage:
         char ihname[256];
         strcpy(ihname, indexname[i]);
         hsident(ihname);
-        fprintf(ofile, "get%sBy%s :: World m => ", ucname, ihname);
+        fprintf(ofile, "get%sBy%s :: D.SupportsDatabase m => ", ucname, ihname);
         for (int j = 0; j != numindexcols[i]; ++j) {
             int cix = colix(indexcols[i][j]);
             fprintf(ofile, "%s -> ", haskelltype(coltypes[cix]));
