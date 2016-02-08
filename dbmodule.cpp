@@ -148,6 +148,23 @@ void hsident(char *name) {
     *dst = 0;
 }
 
+
+char const *maybeFmapCol(int i) {
+    if (!strcmp(coltypes[i], "datetime")) {
+        char *ret = (char *)malloc(300);    //  YOLO!
+        sprintf(ret, "fmap ((fromJustNote \"%s\") . readDate) $ ", colnames[i]);
+        return ret;
+    }
+    return "";
+}
+
+char const *maybeShowCol(int i) {
+    if (!strcmp(coltypes[i], "datetime")) {
+        return "showSqlDateTime ";
+    }
+    return "";
+}
+
 int main(int argc, char const *argv[]) {
     if (argc != 2) {
 usage:
@@ -375,6 +392,8 @@ usage:
     }
     if (usestime) {
         fprintf(ofile, "import Data.Time.Clock (UTCTime)\n");
+        fprintf(ofile, "import Safe (fromJustNote)\n");
+        fprintf(ofile, "import Imvu.Time (readDate, showSqlDateTime)\n");
     }
     if (usestext) {
         fprintf(ofile, "import Data.Text (Text)\n");
@@ -403,13 +422,13 @@ usage:
     fprintf(ofile, "instance ToJSON %s where\n", ucname);
     fprintf(ofile, "    toJSON (%s {..}) = object\n", ucname);
     for (int i = 1; i != ncols; ++i) {
-        fprintf(ofile, "        %s \"%s\" .= %s\n", i == 1 ? "[" : ",", colnames[i], colnames[i]);
+        fprintf(ofile, "        %s \"%s\" .= %s%s\n", i == 1 ? "[" : ",", colnames[i], maybeShowCol(i), colnames[i]);
     }
     fprintf(ofile, "        ]\n\n");
     fprintf(ofile, "instance FromJSON %s where\n", ucname);
     fprintf(ofile, "    parseJSON = withObject \"%s\" $ \\o -> do\n", ucname);
     for (int i = 1; i != ncols; ++i) {
-        fprintf(ofile, "        %s <- o .: \"%s\"\n", colnames[i], colnames[i]);
+        fprintf(ofile, "        %s <- %so .: \"%s\"\n", colnames[i], maybeFmapCol(i), colnames[i]);
     }
     fprintf(ofile, "        return $ %s {..}\n\n", ucname);
 
