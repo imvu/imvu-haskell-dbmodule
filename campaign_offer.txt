@@ -9,5 +9,5 @@ offer_id=uint
 weight=uint
 
 [indices]
-creative=campaign_id
+campaign=campaign_id
 offer=offer_id

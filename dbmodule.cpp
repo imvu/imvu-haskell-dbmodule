@@ -377,6 +377,7 @@ usage:
     fprintf(ofile, "    , get%s\n", ucname);
     fprintf(ofile, "    , update%s\n", ucname);
     fprintf(ofile, "    , new%s\n", ucname);
+    fprintf(ofile, "    , new%sMany\n", ucname);
     fprintf(ofile, "    , delete%s\n", ucname);
     fprintf(ofile, "    , %s (..)\n", ucname);
     for (int i = 0; i != numindices; ++i) {
@@ -384,6 +385,7 @@ usage:
         strcpy(ihname, indexname[i]);
         hsident(ihname);
         fprintf(ofile, "    , get%sBy%s\n", ucname, ihname);
+        fprintf(ofile, "    , delete%sBy%s\n", ucname, ihname);
     }
     fprintf(ofile, "    ) where\n\n");
 
@@ -478,6 +480,11 @@ usage:
     fprintf(ofile, "        Left _ -> return $ Nothing\n");
     fprintf(ofile, "        Right r -> return $ Just $ fromIntegral $ toInteger r\n\n");
 
+    fprintf(ofile, "new%sMany :: D.SupportsDatabase m => [%s] -> m [Maybe %s]\n", ucname, ucname, idtype);
+    fprintf(ofile, "new%sMany items = do\n", ucname);
+    fprintf(ofile, "    mapM new%s items\n", ucname);
+    fprintf(ofile, "\n");
+
     fprintf(ofile, "delete%s :: D.SupportsDatabase m => %s -> m Bool\n", ucname, idtype);
     fprintf(ofile, "delete%s pk = do\n", ucname);
     fprintf(ofile, "    ms <- D.getMasterWriteShard\n");
@@ -488,6 +495,8 @@ usage:
         char ihname[256];
         strcpy(ihname, indexname[i]);
         hsident(ihname);
+
+        //  getXbyY
         fprintf(ofile, "get%sBy%s :: D.SupportsDatabase m => ", ucname, ihname);
         for (int j = 0; j != numindexcols[i]; ++j) {
             int cix = colix(indexcols[i][j]);
@@ -527,7 +536,35 @@ usage:
         fprintf(ofile, "        (%s, %s {..})\n", colnames[0], ucname);
         
         fprintf(ofile, "\n");
+
+        //  deleteXbyY
+        fprintf(ofile, "delete%sBy%s :: D.SupportsDatabase m => ", ucname, ihname);
+        for (int j = 0; j != numindexcols[i]; ++j) {
+            int cix = colix(indexcols[i][j]);
+            fprintf(ofile, "%s -> ", haskelltype(coltypes[cix]));
+        }
+        fprintf(ofile, "m Int\n");
+        fprintf(ofile, "delete%sBy%s ", ucname, ihname);
+        for (int j = 0; j != numindexcols[i]; ++j) {
+            fprintf(ofile, "%s ", indexcols[i][j]);
+        }
+        fprintf(ofile, "= do\n");
+        fprintf(ofile, "    ms <- D.getMasterWriteShard\n");
+        fprintf(ofile, "    res <- D.delete ms \"%s\" ", tblname);
+        for (int q = 0; q != numindexcols[i]; ++q) {
+            if (q != numindexcols[i]-1) {
+                fprintf(ofile, "(D.And ");
+            }
+            fprintf(ofile, "(D.Equal \"%s\" $ D.UpdateValue %s)", indexcols[i][q], indexcols[i][q]);
+        }
+        for (int q = 1; q != numindexcols[i]; ++q) {
+            fprintf(ofile, ")");
+        }
+        fprintf(ofile, "\n    return res\n");
+        
+        fprintf(ofile, "\n");
     }
+
     fclose(ofile);
 
     return 0;
