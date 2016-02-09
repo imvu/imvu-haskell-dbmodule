@@ -384,8 +384,8 @@ usage:
         char ihname[256];
         strcpy(ihname, indexname[i]);
         hsident(ihname);
-        fprintf(ofile, "    , get%sBy%s\n", ucname, ihname);
-        fprintf(ofile, "    , delete%sBy%s\n", ucname, ihname);
+        fprintf(ofile, "    , get%ssBy%s\n", ucname, ihname);
+        fprintf(ofile, "    , delete%ssBy%s\n", ucname, ihname);
     }
     fprintf(ofile, "    ) where\n\n");
 
@@ -497,13 +497,13 @@ usage:
         hsident(ihname);
 
         //  getXbyY
-        fprintf(ofile, "get%sBy%s :: D.SupportsDatabase m => ", ucname, ihname);
+        fprintf(ofile, "get%ssBy%s :: D.SupportsDatabase m => ", ucname, ihname);
         for (int j = 0; j != numindexcols[i]; ++j) {
             int cix = colix(indexcols[i][j]);
             fprintf(ofile, "%s -> ", haskelltype(coltypes[cix]));
         }
         fprintf(ofile, "m [(%s, %s)]\n", idtype, ucname);
-        fprintf(ofile, "get%sBy%s ", ucname, ihname);
+        fprintf(ofile, "get%ssBy%s ", ucname, ihname);
         for (int j = 0; j != numindexcols[i]; ++j) {
             fprintf(ofile, "%s' ", indexcols[i][j]);
         }
@@ -538,13 +538,13 @@ usage:
         fprintf(ofile, "\n");
 
         //  deleteXbyY
-        fprintf(ofile, "delete%sBy%s :: D.SupportsDatabase m => ", ucname, ihname);
+        fprintf(ofile, "delete%ssBy%s :: D.SupportsDatabase m => ", ucname, ihname);
         for (int j = 0; j != numindexcols[i]; ++j) {
             int cix = colix(indexcols[i][j]);
             fprintf(ofile, "%s -> ", haskelltype(coltypes[cix]));
         }
         fprintf(ofile, "m Int\n");
-        fprintf(ofile, "delete%sBy%s ", ucname, ihname);
+        fprintf(ofile, "delete%ssBy%s ", ucname, ihname);
         for (int j = 0; j != numindexcols[i]; ++j) {
             fprintf(ofile, "%s ", indexcols[i][j]);
         }
