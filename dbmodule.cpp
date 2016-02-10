@@ -20,6 +20,7 @@ int ncols = 0;
 
 char indexname[100][256];
 char indexcols[100][100][256];
+bool indexunique[100];
 int numindexcols[100];
 int numindices;
 
@@ -100,7 +101,8 @@ char const *identifiers[] = {
     "type",
     "for",
     "map",
-    "undefined"
+    "undefined",
+    "usage"
 };
 
 bool is_reserved(char const *t) {
@@ -160,7 +162,7 @@ char const *maybeFmapCol(int i) {
 
 char const *maybeShowCol(int i) {
     if (!strcmp(coltypes[i], "datetime")) {
-        return "showSqlDateTime ";
+        return "showDate ";
     }
     return "";
 }
@@ -291,6 +293,10 @@ usage:
             int icol = 0;
             char *estart = eq+1;
             char cname[256];
+            if (*eq && eq[1] == '!') {
+                indexunique[numindices] = true;
+                ++eq;
+            }
             while (*eq) {
                 ++eq;
                 if (*eq == ',' || *eq == 0) {
@@ -395,7 +401,7 @@ usage:
     if (usestime) {
         fprintf(ofile, "import Data.Time.Clock (UTCTime)\n");
         fprintf(ofile, "import Safe (fromJustNote)\n");
-        fprintf(ofile, "import Imvu.Time (readDate, showSqlDateTime)\n");
+        fprintf(ofile, "import Imvu.Time (readDate, showDate)\n");
     }
     if (usestext) {
         fprintf(ofile, "import Data.Text (Text)\n");
