@@ -4,7 +4,7 @@ SQLFILES:=$(patsubst %.txt, schemas/%.sql, $(TXTFILES))
 run:	dbmodule.py $(SQLFILES)
 	cp Imvu/Db/*.hs ../resty/Imvu/Db/
 
-schemas/%.sql:	%.txt
+schemas/%.sql:	%.txt dbmodule.py
 	mkdir -p Imvu/Db
 	mkdir -p schemas
 	./dbmodule.py $<

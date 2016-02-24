@@ -98,7 +98,7 @@ def hscolname(cn):
 
 def maybeShowCol(ct):
     if ct[1] == 'datetime':
-        return 'showDate'
+        return 'showDate '
     return ''
 
 def maybeFmapCol(ct):
