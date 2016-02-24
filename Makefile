@@ -1,10 +1,10 @@
 TXTFILES:=$(wildcard *.txt)
 SQLFILES:=$(patsubst %.txt, schemas/%.sql, $(TXTFILES))
 
-run:	dbmodule
+run:	dbmodule.py
 	mkdir -p Imvu/Db
 	mkdir -p schemas
-	for i in $(TXTFILES); do ./dbmodule $$i; done
+	for i in $(TXTFILES); do ./dbmodule.py $$i; done
 	cp Imvu/Db/*.hs ../resty/Imvu/Db/
 
 dbmodule:	dbmodule.cpp
