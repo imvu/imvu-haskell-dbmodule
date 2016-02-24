@@ -1,0 +1,7 @@
+[dirs]
+sql=schemas/
+hs=Imvu/Db/
+[props]
+campaign_id=uint
+name=string
+nodes=text

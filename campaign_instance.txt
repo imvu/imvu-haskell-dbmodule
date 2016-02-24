@@ -1,0 +1,11 @@
+[dirs]
+sql=schemas/
+hs=Imvu/Db/
+[props]
+campaign_instance_id=uint
+campaign_id=uint
+nodes=text
+start_date=datetime
+end_date=datetime
+[indices]
+campaign=campaign_id
