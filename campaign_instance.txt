@@ -1,6 +1,8 @@
 [dirs]
 sql=schemas/
 hs=Imvu/Db/
+[db]
+shard=aux
 [props]
 campaign_instance_id=int
 campaign_id=int
