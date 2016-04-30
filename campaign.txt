@@ -2,6 +2,6 @@
 sql=schemas/
 hs=Imvu/Db/
 [props]
-campaign_id=uint
+campaign_id=int
 name=string
 nodes=text

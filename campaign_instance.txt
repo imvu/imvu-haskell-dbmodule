@@ -2,8 +2,8 @@
 sql=schemas/
 hs=Imvu/Db/
 [props]
-campaign_instance_id=uint
-campaign_id=uint
+campaign_instance_id=int
+campaign_id=int
 nodes=text
 start_date=datetime
 end_date=datetime

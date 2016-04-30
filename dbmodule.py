@@ -7,7 +7,6 @@ import ConfigParser
 
 _stypes = {
     'int': 'BIGINT',
-    'uint': 'BIGINT UNSIGNED',
     'string': 'VARCHAR(255)',
     'datetime': 'DATETIME',
     'text': 'MEDIUMTEXT',
@@ -17,7 +16,6 @@ _stypes = {
 
 _sqldef = {
     'int': 'NOT NULL DEFAULT 0',
-    'uint': 'NOT NULL DEFAULT 0',
     'string': "NOT NULL DEFAULT ''",
     'datetime': "NOT NULL DEFAULT '2000-01-01 00:00:00'",
     'text': "NOT NULL DEFAULT ''",
@@ -26,8 +24,7 @@ _sqldef = {
     }
 
 _hstypes = {
-    'int': 'Int64',
-    'uint': 'Word64',
+    'int': 'Int',
     'string': 'Text',
     'datetime': 'UTCTime',
     'text': 'Text',
@@ -50,6 +47,9 @@ def hstype(typ):
 def toname(x):
     return os.path.splitext(os.path.basename(x))[0].lower()
 
+def isbadname(n):
+    return n == 'type' or n == 'do' or n == 'default' or n == 'date' or n == 'time' or n == 'datetime' or n == 'class' or n == 'where'
+
 def parse(fn):
     ini = ConfigParser.SafeConfigParser()
     ini.read(fn)
@@ -60,6 +60,9 @@ def parse(fn):
     for ct in ini.items('props'):
         if not sqltype(ct[1]):
             print "%s is not a valid type" % (ct[1],)
+            sys.exit(1)
+        if isbadname(ct[0]):
+            print "%s is a bad column name" % (ct[0],)
             sys.exit(1)
     return ini
 
@@ -77,7 +80,7 @@ def generate_schema(ini, name, f):
             pk = ct
             first = 0
     f.write("    `last_modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,\n");
-    f.write("    PRIMARY KEY (`%s`),\n" % (ct[0],))
+    f.write("    PRIMARY KEY (`%s`),\n" % (ini.items('props')[0][0],))
     if ini.has_section('indices'):
         for it in ini.items('indices'):
             f.write("    INDEX `%s` " % (it[0],))
@@ -157,7 +160,6 @@ def generate_hs(ini, ucname, lcname, f):
         f.write("import Data.Text (Text)\n")
     f.write("import Data.Aeson(FromJSON (..), ToJSON (..), object, withObject, (.:), (.=))\n")
     f.write("import qualified Imvu.World.Database as D\n")
-    f.write("import Data.Word (Word64)\n")
     f.write("import qualified Data.Map.Lazy as Map\n")
     f.write("\n\n")
 
