@@ -125,10 +125,25 @@ def generate_schema(ini, name, f):
     updq = [x[0] for x in ini.items('props')[1:]]
     f.write("UPDATE `%s` SET %s WHERE `%s` = ?;\n" % (name, ', '.join(['`'+x+'` = ?' for x in updq]), pk[0]));
     f.write("INSERT INTO `%s`(%s) VALUES(%s);\n" % (name, "`"+"`,`".join([x[0] for x in nonpk])+"`", ",".join(['?' for x in nonpk])));
+
+    def compareChar(x):
+        if x[1] == 'datetime':
+            return '<'
+        return '='
+
+    def lookup(n):
+        for x in ini.items('props'):
+            if x[0] == n:
+                return x
+        raise "Missing property %s in index query" % (n,)
+
     for it in indices:
+        ifieldnames = it[1].split(',')
+        ifields = [lookup(x) for x in ifieldnames]
         f.write("SELECT * FROM `%s` WHERE " % (name,));
-        f.write(" AND ".join(["`" + x + '` = ?' for x in it[1].split(',')]));
+        f.write(" AND ".join([('`%s` %s ?' % (x[0], compareChar(x))) for x in ifields]));
         f.write(";\n");
+
     f.write("*/\n");
     f.write("\n");
     f.close()
