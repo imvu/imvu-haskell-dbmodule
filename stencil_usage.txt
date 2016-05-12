@@ -1,0 +1,13 @@
+[dirs]
+sql=schemas/
+hs=Imvu/Db/
+[db]
+shard=aux
+auto_increment=40001
+[props]
+stencil_usage_id=int
+stencil_id=int
+campaign_instance_id=int
+[indices]
+stencil=stencil_id,campaign_instance_id
+campaign_instance=campaign_instance_id,stencil_id

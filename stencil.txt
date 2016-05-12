@@ -3,9 +3,9 @@ sql=schemas/
 hs=Imvu/Db/
 [db]
 shard=aux
-auto_increment=10001
+auto_increment=30001
 [props]
-campaign_id=int
+stencil_id=int
 name=string
 kind=string
 definition=text
