@@ -6,7 +6,7 @@ shard=aux
 auto_increment=20001
 [props]
 campaign_instance_id=int
-campaign_id=int
+campaign_template_id=int
 kind=string
 name=string
 definition=text
@@ -19,5 +19,5 @@ killed=bool
 subsumed_by_instance=int
 days_before_delete=int
 [indices]
-campaign=campaign_id
+template=campaign_template_id
 kill=killed,end_date
