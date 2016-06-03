@@ -20,4 +20,5 @@ subsumed_by_instance=int
 days_before_delete=int
 [indices]
 template=campaign_template_id
-kill=killed,end_date
+kill=killed,end_date,days_before_delete
+admit=admitting,end_date

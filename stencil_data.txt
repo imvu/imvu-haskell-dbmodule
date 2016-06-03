@@ -1,0 +1,15 @@
+[dirs]
+sql=schemas/
+hs=Imvu/Db/
+[db]
+shard=aux
+auto_increment=30001
+[props]
+stencil_data_id=int
+stencil_id=int
+language=string
+title=string
+from=string
+definition=text
+[indices]
+stencillanguage=stencil_id,language

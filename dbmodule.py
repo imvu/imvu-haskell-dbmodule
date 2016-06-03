@@ -223,7 +223,7 @@ def generate_hs(ini, ucname, lcname, f):
             usescid = True
         if ct[1] == 'datetime':
             usestime = True
-        if ct[1] == 'text':
+        if ct[1] == 'text' or ct[1] == 'string':
             usestext = True
     if usescid:
         f.write("import Imvu.Customer.Types(CustomerId (..))\n")
@@ -234,6 +234,7 @@ def generate_hs(ini, ucname, lcname, f):
     if usestext:
         f.write("import Data.Text (Text)\n")
     f.write("import Data.Aeson(FromJSON (..), ToJSON (..), object, withObject, (.:), (.=))\n")
+    f.write("import Debug.Trace (trace)\n")
     f.write("import qualified Imvu.World.Database as D\n")
     if usesshard:
         f.write("import qualified Imvu.Shard as S\n")
@@ -285,7 +286,7 @@ def generate_hs(ini, ucname, lcname, f):
         first = 0
     f.write("        ]\n")
     f.write("    case row of\n")
-    f.write("        Nothing -> return $ Nothing\n")
+    f.write("        Nothing -> return Nothing\n")
     f.write("        Just\n")
     first = 1
     for ct in ini.items('props')[1:]:
@@ -329,7 +330,7 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("            ]\n")
     f.write("    res <- D.insert ms \"%s\" upd\n" % (tblname,))
     f.write("    case res of\n")
-    f.write("        Left _ -> return $ Nothing\n")
+    f.write("        Left _ -> return $ trace (show res) Nothing\n")
     f.write("        Right r -> return $ Just $ fromIntegral $ toInteger r\n\n")
 
     f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
