@@ -12,6 +12,7 @@ name=string
 definition=text
 create_date=datetime
 start_date=datetime
+started_by=int
 end_date=datetime
 admitting=bool
 paused=bool
