@@ -197,6 +197,7 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("    , newMulti%ss\n" % (ucname,))
     f.write("    , delete%s\n" % (ucname,))
     f.write("    , deleteMulti%ss\n" % (ucname,))
+    f.write("    , toJSONList%s\n" % (ucname, ))
     f.write("    , %s (..)\n" % (ucname,))
     fnexp = set()
     if ini.has_section('indices'):
@@ -233,7 +234,7 @@ def generate_hs(ini, ucname, lcname, f):
         f.write("import Imvu.Time (readDate, showDate)\n")
     if usestext:
         f.write("import Data.Text (Text)\n")
-    f.write("import Data.Aeson(FromJSON (..), ToJSON (..), object, withObject, (.:), (.=))\n")
+    f.write("import Data.Aeson(FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.=))\n")
     f.write("import Debug.Trace (trace)\n")
     f.write("import qualified Imvu.World.Database as D\n")
     if usesshard:
@@ -256,7 +257,10 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("    deriving (Show, Read, Ord, Eq)\n\n")
 
     f.write("instance ToJSON %s where\n" % (ucname,))
-    f.write("    toJSON (%s {..}) = object\n"% (ucname,))
+    f.write("    toJSON x = object (toJSONList%s x)\n" % (ucname,))
+    f.write("\n");
+    f.write("toJSONList%s :: %s -> [(Text, Value)]\n" % (ucname, ucname))
+    f.write("toJSONList%s %s {..} =\n" % (ucname, ucname))
     first = 1
     for ct in ini.items('props')[1:]:
         f.write("        %s \"%s\" .= %s%s\n" % ([",", "["][first], ct[0], maybeShowCol(ct), ct[0]))
