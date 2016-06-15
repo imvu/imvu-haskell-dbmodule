@@ -199,6 +199,7 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("    , deleteMulti%ss\n" % (ucname,))
     f.write("    , toJSONList%s\n" % (ucname, ))
     f.write("    , %s (..)\n" % (ucname,))
+    f.write("    , %sMaybe (..)\n" % (ucname,))
     fnexp = set()
     if ini.has_section('indices'):
         for ic in ini.items('indices'):
@@ -232,9 +233,9 @@ def generate_hs(ini, ucname, lcname, f):
         f.write("import Data.Time.Clock (UTCTime)\n")
         f.write("import Safe (fromJustNote)\n")
         f.write("import Imvu.Time (readDate, showDate)\n")
-    if usestext:
-        f.write("import Data.Text (Text)\n")
-    f.write("import Data.Aeson(FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.=))\n")
+    f.write("import Data.Maybe (Maybe, fromMaybe)\n")
+    f.write("import Data.Text (Text)\n")
+    f.write("import Data.Aeson(FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.:?), (.=))\n")
     f.write("import Debug.Trace (trace)\n")
     f.write("import qualified Imvu.World.Database as D\n")
     if usesshard:
@@ -271,6 +272,31 @@ def generate_hs(ini, ucname, lcname, f):
     for ct in ini.items('props')[1:]:
         f.write("        %s <- %so .: \"%s\"\n" % (ct[0], maybeFmapCol(ct), ct[0]))
     f.write("        return $ %s {..}\n\n" % (ucname,))
+
+    f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
+    f.write("data %sMaybe = %sMaybe\n"% (ucname, ucname))
+    first = 1
+    for ct in ini.items('props')[1:]:
+        f.write("    %s maybe_%s :: !(Maybe %s)\n" % ([",", "{"][first], ct[0], hstype(ct[1])))
+        first = 0
+    f.write("    }\n")
+    f.write("    deriving (Show, Read, Ord, Eq)\n\n")
+
+    f.write("instance FromJSON %sMaybe where\n" % (ucname,))
+    f.write("    parseJSON = withObject \"%sMaybe\" $ \\o -> do\n" % (ucname,));
+    for ct in ini.items('props')[1:]:
+        f.write("        maybe_%s <- %so .:? \"%s\"\n" % (ct[0], maybeFmapCol(ct), ct[0]))
+    f.write("        return $ %sMaybe {..}\n\n" % (ucname,))
+
+    f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
+    f.write("merge%sMaybe :: %s -> %sMaybe -> %s\n" % (ucname, ucname, ucname, ucname))
+    f.write("merge%sMaybe real@(%s {..}) (%sMaybe {..}) =\n" % (ucname, ucname, ucname))
+    f.write("    %s\n" % (ucname,));
+    sep = '{'
+    for ct in ini.items('props')[1:]:
+        f.write("        %s %s = fromMaybe %s maybe_%s\n" % (sep, ct[0], ct[0], ct[0]))
+        sep = ','
+    f.write("        }\n\n");
 
     f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
     f.write("list%ss :: %s => m [%s]\n" % (ucname, dbqual, idtype))

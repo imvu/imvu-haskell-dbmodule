@@ -11,5 +11,7 @@ kind=string
 saved=bool
 hidden=bool
 last_active=datetime
+footer_stencil_id=int
 [indices]
 active=saved,hidden,last_active
+usedby=footer_stencil_id
