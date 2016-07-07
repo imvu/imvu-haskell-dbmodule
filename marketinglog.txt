@@ -1,0 +1,16 @@
+[dirs]
+sql=schemas/
+hs=Imvu/Db/
+[db]
+shard=aux
+auto_increment=50001
+[props]
+log_id=int
+customers_id=int
+log_type=string
+log_message=string
+log_time=datetime
+[indices]
+bytime=log_time
+byuser=customers_id
+bytype=log_type

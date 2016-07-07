@@ -135,7 +135,7 @@ def generate_schema(ini, name, f):
         for x in ini.items('props'):
             if x[0] == n:
                 return x
-        raise "Missing property %s in index query" % (n,)
+        raise Exception("Missing property %s in index query" % (n,))
 
     for it in indices:
         ifieldnames = it[1].split(',')
@@ -160,6 +160,11 @@ def maybeShowCol(ct):
 def maybeFmapCol(ct):
     if ct[1] == 'datetime':
         return "fmap ((fromJustNote \"%s\") . readDate) $ " % (ct[0],)
+    return ""
+
+def maybeReverseBindCol(ct):
+    if ct[1] == 'datetime':
+        return "(readDate =<<) <$> "
     return ""
 
 def generate_hs(ini, ucname, lcname, f):
@@ -198,6 +203,7 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("    , delete%s\n" % (ucname,))
     f.write("    , deleteMulti%ss\n" % (ucname,))
     f.write("    , toJSONList%s\n" % (ucname, ))
+    f.write("    , merge%sMaybe\n" % (ucname, ))
     f.write("    , %s (..)\n" % (ucname,))
     f.write("    , %sMaybe (..)\n" % (ucname,))
     fnexp = set()
@@ -233,7 +239,7 @@ def generate_hs(ini, ucname, lcname, f):
         f.write("import Data.Time.Clock (UTCTime)\n")
         f.write("import Safe (fromJustNote)\n")
         f.write("import Imvu.Time (readDate, showDate)\n")
-    f.write("import Data.Maybe (Maybe, fromMaybe)\n")
+    f.write("import Data.Maybe (fromMaybe)\n")
     f.write("import Data.Text (Text)\n")
     f.write("import Data.Aeson(FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.:?), (.=))\n")
     f.write("import Debug.Trace (trace)\n")
@@ -285,12 +291,12 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("instance FromJSON %sMaybe where\n" % (ucname,))
     f.write("    parseJSON = withObject \"%sMaybe\" $ \\o -> do\n" % (ucname,));
     for ct in ini.items('props')[1:]:
-        f.write("        maybe_%s <- %so .:? \"%s\"\n" % (ct[0], maybeFmapCol(ct), ct[0]))
+        f.write("        maybe_%s <- %s(o .:? \"%s\")\n" % (ct[0], maybeReverseBindCol(ct), ct[0]))
     f.write("        return $ %sMaybe {..}\n\n" % (ucname,))
 
     f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
     f.write("merge%sMaybe :: %s -> %sMaybe -> %s\n" % (ucname, ucname, ucname, ucname))
-    f.write("merge%sMaybe real@(%s {..}) (%sMaybe {..}) =\n" % (ucname, ucname, ucname))
+    f.write("merge%sMaybe (%s {..}) (%sMaybe {..}) =\n" % (ucname, ucname, ucname))
     f.write("    %s\n" % (ucname,));
     sep = '{'
     for ct in ini.items('props')[1:]:
