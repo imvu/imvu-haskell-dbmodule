@@ -7,38 +7,62 @@ import ConfigParser
 
 _stypes = {
     'int': 'BIGINT',
+    'int?': 'BIGINT',
     'string': 'VARCHAR(255)',
+    'string?': 'VARCHAR(255)',
     'datetime': 'DATETIME',
+    'datetime?': 'DATETIME',
     'text': 'MEDIUMTEXT',
+    'text?': 'MEDIUMTEXT',
     'cid': 'INTEGER UNSIGNED',
-    'bool': 'BOOLEAN'
+    'cid?': 'INTEGER UNSIGNED',
+    'bool': 'BOOLEAN',
+    'bool?': 'BOOLEAN'
     }
 
 _sqldef = {
     'int': 'NOT NULL DEFAULT 0',
+    'int?': 'DEFAULT NULL',
     'string': "NOT NULL DEFAULT ''",
+    'string?': "DEFAULT NULL",
     'datetime': "NOT NULL DEFAULT '2000-01-01 00:00:00'",
+    'datetime?': "DEFAULT NULL",
     'text': "NOT NULL DEFAULT ''",
-    'cid': 'NOT NULL DEFAULT 0',
-    'bool': 'NOT NULL DEFAULT FALSE'
+    'text?': "DEFAULT NULL",
+    'cid': 'DEFAULT 0',
+    'cid?': 'DEFAULT NULL',
+    'bool': 'DEFAULT FALSE',
+    'bool?': 'DEFAULT NULL'
     }
 
 _hstypes = {
     'int': 'Int',
+    'int?': 'Maybe Int',
     'string': 'Text',
+    'string?': 'Maybe Text',
     'datetime': 'UTCTime',
+    'datetime?': 'Maybe UTCTime',
     'text': 'Text',
+    'text?': 'Maybe Text',
     'cid': 'CustomerId',
-    'bool': 'Bool'
+    'cid?': 'Maybe CustomerId',
+    'bool': 'Bool',
+    'bool?': 'Maybe Bool'
     }
 
 _colcomps = {
     'int': 'D.Equal',
+    'int?': 'D.Equal',
     'string': 'D.Equal',
+    'string?': 'D.Equal',
     'datetime': 'D.Less',
+    'datetime?': 'D.Less',
     'text': 'D.Like',
+    'text?': 'D.Like',
     'cid': 'D.Equal',
-    'bool': 'D.Equal'
+    'cid?': 'D.Equal',
+    'bool': 'D.Equal',
+    'bool?': 'D.Equal'
     }
 
 def sqltype(typ):
@@ -62,6 +86,11 @@ def toname(x):
 
 def isbadname(n):
     return n == 'type' or n == 'do' or n == 'default' or n == 'date' or n == 'time' or n == 'datetime' or n == 'class' or n == 'where' or n == 'id' or n == 'let'
+
+def maybeParens(s):
+    if (s.find(' ') != -1):
+        return '(' + s + ')'
+    return s
 
 def parse(fn):
     ini = ConfigParser.SafeConfigParser()
@@ -162,6 +191,11 @@ def maybeFmapCol(ct):
         return "fmap ((fromJustNote \"%s\") . readDate) $ " % (ct[0],)
     return ""
 
+def jsonLookupCol(ct):
+    if ct[1].endswith('?'):
+        return ".:?"
+    return ".:"
+
 def maybeReverseBindCol(ct):
     if ct[1] == 'datetime':
         return "(readDate =<<) <$> "
@@ -258,7 +292,7 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("data %s = %s\n"% (ucname, ucname))
     first = 1
     for ct in ini.items('props')[1:]:
-        f.write("    %s %s :: !%s\n" % ([",", "{"][first], ct[0], hstype(ct[1])))
+        f.write("    %s %s :: !%s\n" % ([",", "{"][first], ct[0], maybeParens(hstype(ct[1]))))
         first = 0
     f.write("    }\n")
     f.write("    deriving (Show, Read, Ord, Eq)\n\n")
@@ -276,14 +310,14 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("instance FromJSON %s where\n" % (ucname,))
     f.write("    parseJSON = withObject \"%s\" $ \\o -> do\n" % (ucname,));
     for ct in ini.items('props')[1:]:
-        f.write("        %s <- %so .: \"%s\"\n" % (ct[0], maybeFmapCol(ct), ct[0]))
+        f.write("        %s <- %so %s \"%s\"\n" % (ct[0], maybeFmapCol(ct), jsonLookupCol(ct), ct[0]))
     f.write("        return $ %s {..}\n\n" % (ucname,))
 
     f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
     f.write("data %sMaybe = %sMaybe\n"% (ucname, ucname))
     first = 1
     for ct in ini.items('props')[1:]:
-        f.write("    %s maybe_%s :: !(Maybe %s)\n" % ([",", "{"][first], ct[0], hstype(ct[1])))
+        f.write("    %s maybe_%s :: !(Maybe %s)\n" % ([",", "{"][first], ct[0], maybeParens(hstype(ct[1]))))
         first = 0
     f.write("    }\n")
     f.write("    deriving (Show, Read, Ord, Eq)\n\n")
