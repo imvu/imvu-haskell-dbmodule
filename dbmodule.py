@@ -182,7 +182,12 @@ def hscolname(cn):
     return ''.join([n.capitalize() for n in cn.split('_')])
 
 def maybeShowCol(ct):
-    if ct[1] == 'datetime':
+    # if ct[1].endswith('?'):
+    #     return '(fromMaybe D.Null (' + maybeShowCol2(ct[1][:-1]) + '))'
+    return maybeShowCol2(ct[1])
+
+def maybeShowCol2(typ):
+    if typ == 'datetime':
         return 'showDate '
     return ''
 
@@ -275,7 +280,7 @@ def generate_hs(ini, ucname, lcname, f):
         f.write("import Imvu.Time (readDate, showDate)\n")
     f.write("import Data.Maybe (fromMaybe)\n")
     f.write("import Data.Text (Text)\n")
-    f.write("import Data.Aeson(FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.:?), (.=))\n")
+    f.write("import Data.Aeson(FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.:!), (.:?), (.=))\n")
     f.write("import Debug.Trace (trace)\n")
     f.write("import qualified Imvu.World.Database as D\n")
     if usesshard:
@@ -325,7 +330,7 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("instance FromJSON %sMaybe where\n" % (ucname,))
     f.write("    parseJSON = withObject \"%sMaybe\" $ \\o -> do\n" % (ucname,));
     for ct in ini.items('props')[1:]:
-        f.write("        maybe_%s <- %s(o .:? \"%s\")\n" % (ct[0], maybeReverseBindCol(ct), ct[0]))
+        f.write("        maybe_%s <- %s(o .:! \"%s\")\n" % (ct[0], maybeReverseBindCol(ct), ct[0]))
     f.write("        return $ %sMaybe {..}\n\n" % (ucname,))
 
     f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
