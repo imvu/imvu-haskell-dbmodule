@@ -233,7 +233,8 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("\n")
 
     f.write("module Imvu.Db.%s\n" % (ucname,))
-    f.write("    ( list%ss\n" % (ucname,))
+    f.write("    ( dummyExport\n")
+    f.write("    , list%ss\n" % (ucname,))
     f.write("    , get%s\n" % (ucname,))
     f.write("    , getMany%ss\n" % (ucname,))
     f.write("    , update%s\n" % (ucname,))
@@ -261,6 +262,9 @@ def generate_hs(ini, ucname, lcname, f):
                     f.write("    , %s\n"% (deleteName,))
                     fnexp.add(deleteName)
     f.write("    ) where\n\n")
+    f.write("dummyExport :: FromJSON a => Object -> Data.Text.Internal.Text -> aeson-0.11.2.1:Data.Aeson.Types.Internal.Parser (Maybe a)\n")
+    f.write("dummyExport = (.:?)\n\n")
+
 
     usescid = False
     usestime = False
