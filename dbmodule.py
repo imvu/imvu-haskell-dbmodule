@@ -262,8 +262,6 @@ def generate_hs(ini, ucname, lcname, f):
                     f.write("    , %s\n"% (deleteName,))
                     fnexp.add(deleteName)
     f.write("    ) where\n\n")
-    f.write("dummyExport :: FromJSON a => Object -> Data.Text.Internal.Text -> aeson-0.11.2.1:Data.Aeson.Types.Internal.Parser (Maybe a)\n")
-    f.write("dummyExport = (.:?)\n\n")
 
 
     usescid = False
@@ -284,7 +282,8 @@ def generate_hs(ini, ucname, lcname, f):
         f.write("import Imvu.Time (readDate, showDate)\n")
     f.write("import Data.Maybe (fromMaybe)\n")
     f.write("import Data.Text (Text)\n")
-    f.write("import Data.Aeson(FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.:!), (.:?), (.=))\n")
+    f.write("import Data.Aeson (FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.:!), (.:?), (.=))\n")
+    f.write("import Data.Aeson.Types (Parser, Object)\n")
     f.write("import Debug.Trace (trace)\n")
     f.write("import qualified Imvu.World.Database as D\n")
     if usesshard:
@@ -292,6 +291,8 @@ def generate_hs(ini, ucname, lcname, f):
         f.write("import qualified Imvu.World.Time as Time\n")
     f.write("import qualified Data.Map.Lazy as Map\n")
     f.write("\n\n")
+    f.write("dummyExport :: FromJSON a => Object -> Text -> Parser (Maybe a)\n")
+    f.write("dummyExport = (.:?)\n\n")
 
     dbqual = "D.SupportsDatabase m"
     if usesshard:
