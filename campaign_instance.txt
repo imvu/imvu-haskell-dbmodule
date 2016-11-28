@@ -10,6 +10,7 @@ campaign_template_id=int
 kind=string
 name=string
 definition=text
+holdout_group_percentage=int
 create_date=datetime
 start_date=datetime
 started_by=int
