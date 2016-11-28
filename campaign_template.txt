@@ -9,6 +9,7 @@ campaign_id=int
 name=string
 kind=string
 definition=text
+holdout_group_percentage=int
 saved=bool
 hidden=bool
 last_active=datetime
