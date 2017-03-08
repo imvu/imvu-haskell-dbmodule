@@ -2,12 +2,12 @@ TXTFILES:=$(wildcard *.txt)
 SQLFILES:=$(patsubst %.txt, schemas/%.sql, $(TXTFILES))
 
 run:	dbmodule.py $(SQLFILES)
-	cp Imvu/Db/*.hs ../resty/resty-lib/Imvu/Db/
+	cp Imvu/Resty/Db/*.hs ${RESTY_ROOT}/lib/resty-base/src/Imvu/Resty/Db/
 
 schemas/%.sql:	%.txt dbmodule.py
-	mkdir -p Imvu/Db
+	mkdir -p Imvu/Resty/Db
 	mkdir -p schemas
 	./dbmodule.py $<
 
 clean:
-	rm -f Imvu/Db/* schemas/*
+	rm -f Imvu/Resty/Db/* schemas/*

@@ -232,7 +232,7 @@ def generate_hs(ini, ucname, lcname, f):
     f.write("--\n")
     f.write("\n")
 
-    f.write("module Imvu.Db.%s\n" % (ucname,))
+    f.write("module Imvu.Resty.Db.%s\n" % (ucname,))
     f.write("    ( dummyExport\n")
     f.write("    , list%ss\n" % (ucname,))
     f.write("    , get%s\n" % (ucname,))
@@ -279,24 +279,24 @@ def generate_hs(ini, ucname, lcname, f):
     if usestime:
         f.write("import Data.Time.Clock (UTCTime)\n")
         f.write("import Safe (fromJustNote)\n")
-        f.write("import Imvu.Time (readDate, showDate)\n")
+        f.write("import Imvu.Resty.Time (readDate, showDate)\n")
     f.write("import Data.Maybe (fromMaybe)\n")
     f.write("import Data.Text (Text)\n")
     f.write("import Data.Aeson (FromJSON (..), ToJSON (..), Value, object, withObject, (.:), (.:!), (.:?), (.=))\n")
     f.write("import Data.Aeson.Types (Parser, Object)\n")
     f.write("import Debug.Trace (trace)\n")
-    f.write("import qualified Imvu.World.Database as D\n")
+    f.write("import qualified Imvu.Resty.World.Database as D\n")
     if usesshard:
-        f.write("import qualified Imvu.Shard as S\n")
-        f.write("import qualified Imvu.World.Time as Time\n")
+        f.write("import qualified Imvu.Resty.Shard as S\n")
+        f.write("import qualified Imvu.Resty.World.Time as Time\n")
     f.write("import qualified Data.Map.Lazy as Map\n")
     f.write("\n\n")
     f.write("dummyExport :: FromJSON a => Object -> Text -> Parser (Maybe a)\n")
     f.write("dummyExport = (.:?)\n\n")
 
-    dbqual = "D.SupportsDatabase m"
+    dbqual = "D.SupportsDatabaseWithCallStack m"
     if usesshard:
-        dbqual = "(S.SupportsShard m, Time.SupportsClock m, D.SupportsDatabase m)"
+        dbqual = "(S.SupportsShard m, Time.SupportsClock m, D.SupportsDatabaseWithCallStack m)"
 
     f.write("--    AUTO-GENERATED, DO NOT EDIT !!!\n")
     f.write("data %s = %s\n"% (ucname, ucname))

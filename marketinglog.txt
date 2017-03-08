@@ -1,6 +1,6 @@
 [dirs]
 sql=schemas/
-hs=Imvu/Db/
+hs=Imvu/Resty/Db/
 [db]
 shard=aux
 auto_increment=50001
